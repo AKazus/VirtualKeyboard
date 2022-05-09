@@ -48,7 +48,7 @@ class Keyboard {
                 });
             });
         });
-    };
+    }
 
     createKeys() {
         const fragment = document.createDocumentFragment();
@@ -453,7 +453,7 @@ class Keyboard {
         });
 
         return fragment;
-    };
+    }
 
     toggleCapsLock() {
         this.properties.capsLock = !this.properties.capsLock;
@@ -463,7 +463,7 @@ class Keyboard {
                 key.textContent = this.isUpperCase() ? key.textContent.toUpperCase() : key.textContent.toLowerCase();
             }
         }
-    };
+    }
 
     shiftToggle(toggle) {
         this.properties.shiftDown = toggle;
@@ -476,21 +476,21 @@ class Keyboard {
                 key.textContent = this.isUpperCase() ? key.getAttribute("value").toUpperCase() : key.getAttribute("value").toLowerCase();
             }
         }
-    };
+    }
 
     open(initialValue, oninput, onclose) {
         this.properties.value = initialValue || "";
         this.eventHandlers.oninput = oninput;
         this.eventHandlers.onclose = onclose;
         this.elements.main.classList.remove("keyboard--hidden");
-    };
+    }
 
     close() {
         this.properties.value = "";
         this.eventHandlers.oninput = oninput;
         this.eventHandlers.onclose = onclose;
         this.elements.main.classList.add("keyboard--hidden");
-    };
+    }
 
     isUpperCase() {
         if (this.isMackintosh()) {
