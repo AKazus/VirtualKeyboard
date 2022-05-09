@@ -21,7 +21,7 @@ class Keyboard {
     }
 
     init() {
-        // create textarea
+        // Create textarea
         this.elements.textarea = document.createElement("textarea");
         this.elements.textarea.classList.add("keyboard-input");
         this.parent.appendChild(this.elements.textarea)
@@ -47,19 +47,16 @@ class Keyboard {
                     element.value = currentValue;
                 });
             });
-            /*element.addEventListener("focusout", () => {
-                this.close();
-            });*/
         });
     };
 
     createKeys() {
         const fragment = document.createDocumentFragment();
         const keyLayout = [
-            "`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "done",
+            ["`", "~"], ["1", "!"], ["2", "@"], ["3", "#"], ["4", "$"], ["5", "%"], ["6", "^"], ["7", "&"], ["8", "*"], ["9", "("], ["0", ")"], ["-", "_"], ["=", "+"], "done",
             "tab", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]", "backspace",
-            "capslock", "a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'", "enter",
-            "shiftL", "z", "x", "c", "v", "b", "n", "m", ",", ".", "/", "up", "shiftR",
+            "capslock", "a", "s", "d", "f", "g", "h", "j", "k", "l", [";", ":"], ["'", "\""], "enter",
+            "shiftL", "z", "x", "c", "v", "b", "n", "m", [",", "<"], [".", ">"], ["/", "?"], "up", "shiftR",
             "controlL", "altL", " ", "altR", "controlR", "left", "down", "right"
         ];
 
@@ -73,9 +70,16 @@ class Keyboard {
             const insertLineBreak = ["done", "backspace", "enter", "shiftR", ].indexOf(key) !== -1;
 
             // Add attributes/classes
+            if (Array.isArray(key)) {
+                keyElement.setAttribute("shiftValue", key[1]);
+                keyElement.setAttribute("value", key[0].toLowerCase());
+            } else {
+                keyElement.setAttribute("value", key.toLowerCase());
+            }
+
             keyElement.setAttribute("type", "button");
             keyElement.classList.add("keyboard__key");
-            keyElement.setAttribute("value", key.toLowerCase());
+           
 
             switch (key) {
                 case "backspace":
@@ -358,6 +362,7 @@ class Keyboard {
                     });
 
                     break;
+
                 case "down":
                     keyElement.classList.add("keyboard__key--wide");
                     keyElement.innerHTML = createIconHTML("keyboard_arrow_down");
@@ -375,6 +380,7 @@ class Keyboard {
                     });
 
                     break;
+
                 case "left":
                     keyElement.classList.add("keyboard__key--wide");
                     keyElement.innerHTML = createIconHTML("keyboard_arrow_left");
@@ -392,6 +398,7 @@ class Keyboard {
                     });
 
                     break;
+
                 case "right":
                     keyElement.classList.add("keyboard__key--wide");
                     keyElement.innerHTML = createIconHTML("keyboard_arrow_right");
@@ -411,22 +418,26 @@ class Keyboard {
                     break;
 
                 default:
-                    keyElement.textContent = key.toLowerCase();
-
+                    if(Array.isArray(key)){
+                        keyElement.textContent = key[0].toLowerCase();
+                    } else {
+                        keyElement.textContent = key.toLowerCase();
+                    }
+                  
                     keyElement.addEventListener("click", () => {
-                        this.elements.textarea.value += this.isUpperCase() ? key.toUpperCase() : key.toLowerCase()
+                        this.elements.textarea.value += this.isUpperCase() ? keyElement.textContent.toUpperCase() : keyElement.textContent.toLowerCase()
                     });
 
                     document.addEventListener("keydown", (e) => {
-                        if (e.key.toLowerCase() == key.toLowerCase()) {
+                        if (e.key.toLowerCase() == keyElement.textContent.toLowerCase()) {
                             if (document.activeElement !== this.elements.textarea) {
-                                this.elements.textarea.value += this.isUpperCase() ? key.toUpperCase() : key.toLowerCase()
+                                this.elements.textarea.value += this.isUpperCase() ? keyElement.textContent.toUpperCase() : keyElement.textContent.toLowerCase()
                             }
                             keyElement.classList.add("key_active");
                         }
                     })
                     document.addEventListener("keyup", (e) => {
-                        if (e.key.toLowerCase() == key.toLowerCase()) {
+                        if (e.key.toLowerCase() == keyElement.textContent.toLowerCase()) {
                             keyElement.classList.remove("key_active");
                         }
                     })
@@ -458,8 +469,11 @@ class Keyboard {
         this.properties.shiftDown = toggle;
 
         for (const key of this.elements.keys) {
-            if (key.childElementCount === 0 && ["shiftl", "shiftr", "controll", "controlr", "altr", "altl"].indexOf(key.value) == -1) {
-                key.textContent = this.isUpperCase() ? key.textContent.toUpperCase() : key.textContent.toLowerCase();
+            
+            if (key.hasAttribute("shiftValue") && this.properties.shiftDown) {
+                key.textContent = key.getAttribute("shiftValue");
+            } else if (key.childElementCount === 0 && ["shiftl", "shiftr", "controll", "controlr", "altr", "altl"].indexOf(key.value) == -1) {
+                key.textContent = this.isUpperCase() ? key.getAttribute("value").toUpperCase() : key.getAttribute("value").toLowerCase();
             }
         }
     };
@@ -480,11 +494,7 @@ class Keyboard {
 
     isUpperCase() {
         if (this.isMackintosh()) {
-            if (this.properties.shiftDown || this.properties.capsLock) {
-                return true;
-            } else {
-                return false;
-            }
+            return this.properties.shiftDown || this.properties.capsLock;
         } else {
             if (this.properties.shiftDown && this.properties.capsLock) {
                 return false;
